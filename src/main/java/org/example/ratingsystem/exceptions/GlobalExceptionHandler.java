@@ -2,7 +2,6 @@ package org.example.ratingsystem.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -13,8 +12,8 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<Object> handleUserAlreadyExists(UserAlreadyExistsException e) {
+    @ExceptionHandler({UserAlreadyExistsException.class, InvalidTokenException.class})
+    public ResponseEntity<Object> handleBadRequest(RuntimeException e) {
         return buildSimpleResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
@@ -23,5 +22,10 @@ public class GlobalExceptionHandler {
         body.put("timestamp", LocalDateTime.now());
         body.put("message", message);
         return new ResponseEntity<>(body, status);
+    }
+
+    @ExceptionHandler(MailServiceException.class)
+    public ResponseEntity<Object> handleMailServiceException(MailServiceException e) {
+        return buildSimpleResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
