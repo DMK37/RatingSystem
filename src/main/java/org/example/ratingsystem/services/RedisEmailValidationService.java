@@ -16,12 +16,12 @@ public class RedisEmailValidationService implements EmailValidationService {
 
     @Override
     public void setToken(String token, String id) {
-        redisTemplate.opsForValue().set(token, id, 24, TimeUnit.HOURS);
+        redisTemplate.opsForValue().set("verify:" + token, id, 24, TimeUnit.HOURS);
     }
 
     @Override
     public String getUserId(String token) {
-        String id = redisTemplate.opsForValue().get(token);
+        String id = redisTemplate.opsForValue().get("verify:" + token);
         if (id == null) {
             throw new InvalidTokenException("Invalid token");
         }

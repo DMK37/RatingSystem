@@ -21,6 +21,7 @@ public class UserStatus {
     @OneToOne
     @MapsId
     @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @ToString.Exclude
     private User user;
 
     @Enumerated(EnumType.STRING)

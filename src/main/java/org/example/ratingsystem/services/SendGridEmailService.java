@@ -46,4 +46,52 @@ public class SendGridEmailService implements EmailService {
             throw new MailServiceException("Could not send verification email");
         }
     }
+
+    @Override
+    public void sendApprovalEmail(String email, String firstName) {
+        Request request = new Request();
+
+        String subject = "Account Approved";
+        String content = String.format("Hello %s, <br> Your account has been approved.", firstName);
+
+        Mail mail = new Mail(
+                new Email(fromEmail),
+                subject,
+                new Email(email),
+                new Content("text/html", content)
+        );
+
+        try {
+            request.setMethod(Method.POST);
+            request.setEndpoint("mail/send");
+            request.setBody(mail.build());
+            sendGrid.api(request);
+        } catch (IOException ex) {
+            throw new MailServiceException("Could not send approval email");
+        }
+    }
+
+    @Override
+    public void sendRejectionEmail(String email, String firstName) {
+        Request request = new Request();
+
+        String subject = "Account Rejected";
+        String content = String.format("Hello %s, <br> Your account has been rejected.", firstName);
+
+        Mail mail = new Mail(
+                new Email(fromEmail),
+                subject,
+                new Email(email),
+                new Content("text/html", content)
+        );
+
+        try {
+            request.setMethod(Method.POST);
+            request.setEndpoint("mail/send");
+            request.setBody(mail.build());
+            sendGrid.api(request);
+        } catch (IOException ex) {
+            throw new MailServiceException("Could not send rejection email");
+        }
+    }
 }

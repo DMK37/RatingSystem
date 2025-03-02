@@ -1,9 +1,7 @@
 package org.example.ratingsystem.controllers;
 
 import lombok.RequiredArgsConstructor;
-import org.example.ratingsystem.dtos.auth.EmailVerificationDTO;
-import org.example.ratingsystem.dtos.auth.SignUpRequestDTO;
-import org.example.ratingsystem.dtos.auth.SignUpResponseDTO;
+import org.example.ratingsystem.dtos.auth.*;
 import org.example.ratingsystem.services.interfaces.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,5 +23,10 @@ public class AuthController {
     public ResponseEntity<EmailVerificationDTO> verifyEmail(@RequestParam String token) {
 
         return ResponseEntity.ok(authService.verify(token));
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO loginRequestDTO) {
+        return ResponseEntity.ok(authService.login(loginRequestDTO));
     }
 }
