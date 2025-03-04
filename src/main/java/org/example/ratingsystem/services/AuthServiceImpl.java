@@ -16,7 +16,7 @@ import org.example.ratingsystem.repositories.UserRepository;
 import org.example.ratingsystem.repositories.UserStatusRepository;
 import org.example.ratingsystem.services.interfaces.AuthService;
 import org.example.ratingsystem.services.interfaces.EmailService;
-import org.example.ratingsystem.services.interfaces.EmailValidationService;
+import org.example.ratingsystem.services.interfaces.ValidationService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
+import java.util.Random;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -43,9 +44,10 @@ public class AuthServiceImpl implements AuthService {
     private final UserStatusRepository userStatusRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
-    private final EmailValidationService tokenValidationService;
+    private final ValidationService tokenValidationService;
     private final TokenProvider tokenProvider;
     private final AuthenticationManager authenticationManager;
+    private final Random random = new Random();
 
     private static final String EMAIL_REGEX = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
     private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
@@ -85,7 +87,7 @@ public class AuthServiceImpl implements AuthService {
         String token = UUID.randomUUID().toString();
         String verificationLink = String.format("http://%s:%d/auth/verify?token=%s", address, port, token);
 
-        tokenValidationService.setToken(token, user.getId().toString());
+        tokenValidationService.setEmailValidationToken(token, user.getId().toString());
 
         emailService.sendVerificationEmail(user.getEmail(), user.getFirstName(),
                 verificationLink);
@@ -99,8 +101,9 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public EmailVerificationDTO verify(String token) {
-        String id = tokenValidationService.getUserId(token);
+        String id = tokenValidationService.getUserIdFromValidationToken(token);
         if (id == null) {
             throw new InvalidTokenException("Invalid token");
         }
@@ -134,10 +137,58 @@ public class AuthServiceImpl implements AuthService {
                             .map(GrantedAuthority::getAuthority)
                             .findFirst()
                             .orElseThrow(() -> new LoginFailedException("User has no assigned roles!")));
+                    put("userId", user.getId().toString());
                 }});
 
         return LoginResponseDTO.builder()
                 .token(token)
+                .build();
+    }
+
+    @Override
+    public ForgotPasswordResponseDTO forgotPassword(String email) {
+        if (!isValidEmail(email)) {
+            throw new InvalidDataException("Invalid email");
+        }
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        if (user.getUserStatus().getStatus() != ApprovalStatus.APPROVED) {
+            throw new InvalidDataException("User is not approved");
+        }
+
+        int token = 100000 + random.nextInt(900000);
+
+        emailService.sendForgotPasswordEmail(email, user.getFirstName(), token,
+                String.format("http://%s:%d/auth/reset_password", address, port));
+
+        tokenValidationService.setForgotPasswordToken(String.valueOf(token), user.getId().toString());
+
+        return ForgotPasswordResponseDTO.builder()
+                .message("Password reset link sent to email")
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public ResetPasswordResponseDTO resetPassword(ResetPasswordRequestDTO resetPasswordRequestDTO) {
+         String id = tokenValidationService.getUserIdFromForgotPasswordToken(resetPasswordRequestDTO.getToken());
+        if (id == null) {
+            throw new InvalidTokenException("Invalid token");
+        }
+
+        User user = userRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        String encodedPassword = passwordEncoder.encode(resetPasswordRequestDTO.getPassword());
+        user.setPassword(encodedPassword);
+        userRepository.save(user);
+
+        emailService.sendResetPasswordEmail(user.getEmail(), user.getFirstName());
+
+        return ResetPasswordResponseDTO.builder()
+                .message("Password reset successful")
                 .build();
     }
 }

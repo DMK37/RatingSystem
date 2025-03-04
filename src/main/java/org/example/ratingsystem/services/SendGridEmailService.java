@@ -94,4 +94,53 @@ public class SendGridEmailService implements EmailService {
             throw new MailServiceException("Could not send rejection email");
         }
     }
+
+    @Override
+    public void sendForgotPasswordEmail(String email, String firstName, int token, String link) {
+        Request request = new Request();
+
+        String subject = "Password Reset";
+        String content = String.format("Hello %s, <br> Please click the link below to reset your password: " +
+                "<br> <a href=\"%s\">Reset Password</a> <br> Token: %d", firstName, link, token);
+
+        Mail mail = new Mail(
+                new Email(fromEmail),
+                subject,
+                new Email(email),
+                new Content("text/html", content)
+        );
+
+        try {
+            request.setMethod(Method.POST);
+            request.setEndpoint("mail/send");
+            request.setBody(mail.build());
+            sendGrid.api(request);
+        } catch (IOException ex) {
+            throw new MailServiceException("Could not send forgot password email");
+        }
+    }
+
+    @Override
+    public void sendResetPasswordEmail(String email, String firstName) {
+        Request request = new Request();
+
+        String subject = "Password Reset Successful";
+        String content = String.format("Hello %s, <br> Your password has been reset successfully.", firstName);
+
+        Mail mail = new Mail(
+                new Email(fromEmail),
+                subject,
+                new Email(email),
+                new Content("text/html", content)
+        );
+
+        try {
+            request.setMethod(Method.POST);
+            request.setEndpoint("mail/send");
+            request.setBody(mail.build());
+            sendGrid.api(request);
+        } catch (IOException ex) {
+            throw new MailServiceException("Could not send reset password email");
+        }
+    }
 }

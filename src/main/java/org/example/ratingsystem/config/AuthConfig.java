@@ -29,15 +29,17 @@ public class AuthConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/auth/*").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/users/*/comments").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/users/*/comments").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/users/comments/*").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/users/comments/*").hasRole(Role.USER.name())
+                        .requestMatchers(HttpMethod.PUT, "/users/comments/*").hasRole(Role.USER.name())
                         .requestMatchers("/admin/**").hasRole(Role.USER.name())
                         .anyRequest().authenticated()
                 )
-
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
-
-
 }

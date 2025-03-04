@@ -13,6 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@Builder
 public class UserStatus {
     @Id
     @Column(name = "user_id", nullable = false, updatable = false, unique = true)

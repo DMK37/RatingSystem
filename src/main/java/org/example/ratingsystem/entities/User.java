@@ -7,11 +7,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "users")
@@ -41,7 +40,7 @@ public class User implements UserDetails {
     private String email;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private long createdAt;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false, updatable = false)
@@ -54,7 +53,7 @@ public class User implements UserDetails {
 
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
+        createdAt = Instant.now().getEpochSecond();
     }
 
     @Override

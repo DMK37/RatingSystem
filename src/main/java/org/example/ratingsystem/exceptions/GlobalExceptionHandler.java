@@ -13,7 +13,7 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler({UserAlreadyExistsException.class, InvalidTokenException.class, EntityNotFoundException.class,
+    @ExceptionHandler({UserAlreadyExistsException.class, InvalidTokenException.class,
             NotPendingStatus.class, InvalidDataException.class})
     public ResponseEntity<Object> handleBadRequest(RuntimeException e) {
         return buildSimpleResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -31,8 +31,13 @@ public class GlobalExceptionHandler {
         return buildSimpleResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler(LoginFailedException.class)
+    @ExceptionHandler({LoginFailedException.class})
     public ResponseEntity<Object> handleLoginFailedException(LoginFailedException e) {
         return buildSimpleResponse(e.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler({EntityNotFoundException.class})
+    public ResponseEntity<Object> handleNotFoundException(EntityNotFoundException e) {
+        return buildSimpleResponse(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 }

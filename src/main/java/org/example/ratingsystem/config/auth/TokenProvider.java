@@ -26,7 +26,7 @@ public class TokenProvider {
 
     public String generateToken(String username, Map<String, Object> claims) {
         return Jwts.builder()
-                .claims(claims) // Optional: Add extra claims (like roles)
+                .claims(claims)
                 .subject(username)
                 .issuedAt(new Date())
                 .expiration(new Date(Instant.now().toEpochMilli() + EXPIRATION_TIME))
@@ -50,6 +50,10 @@ public class TokenProvider {
     public <T> T extractClaim(String jwtToken, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(jwtToken);
         return claimsResolver.apply(claims);
+    }
+
+    public String extractUserId(String token) {
+        return extractClaim(token, (claims) -> claims.get("userId", String.class));
     }
 
     public String extractUsername(String token) {

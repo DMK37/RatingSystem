@@ -6,4 +6,6 @@ public interface AuthService {
     SignUpResponseDTO signUp(SignUpRequestDTO signUpRequest);
     EmailVerificationDTO verify(String token);
     LoginResponseDTO login(LoginRequestDTO loginRequestDTO);
+    ForgotPasswordResponseDTO forgotPassword(String email);
+    ResetPasswordResponseDTO resetPassword(ResetPasswordRequestDTO resetPasswordRequestDTO);
 }

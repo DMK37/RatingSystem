@@ -3,7 +3,7 @@ package org.example.ratingsystem.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Entity
@@ -13,6 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@Builder
 public class Comment {
 
     @Id
@@ -34,8 +35,14 @@ public class Comment {
     private User author;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private long createdAt;
 
     @Column(name = "approved", nullable = false)
     private boolean approved;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = Instant.now().getEpochSecond();
+        approved = false;
+    }
 }
