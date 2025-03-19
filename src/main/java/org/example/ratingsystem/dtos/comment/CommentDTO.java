@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 public class CommentDTO {
     private UUID id;
     private String message;
+    private boolean isPositive;
     private long createdAt;
     private UserDTO seller;
     private UserDTO author;

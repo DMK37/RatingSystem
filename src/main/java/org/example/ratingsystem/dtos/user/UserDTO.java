@@ -16,6 +16,7 @@ public class UserDTO {
     private UUID id;
     private String firstName;
     private String lastName;
+    private int rank;
 
     public static UserDTO mapUserToUserDTO(User user) {
         if (user == null) {

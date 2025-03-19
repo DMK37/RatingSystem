@@ -1,5 +1,6 @@
 package org.example.ratingsystem.exceptions;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +35,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({LoginFailedException.class})
     public ResponseEntity<Object> handleLoginFailedException(LoginFailedException e) {
         return buildSimpleResponse(e.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<Object> handleExpiredJwtException(ExpiredJwtException e) {
+        return buildSimpleResponse("Token has expired", HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler({EntityNotFoundException.class})

@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.ratingsystem.config.auth.TokenProvider;
 import org.example.ratingsystem.dtos.auth.*;
 import org.example.ratingsystem.entities.User;
+import org.example.ratingsystem.entities.UserRanking;
 import org.example.ratingsystem.entities.UserStatus;
 import org.example.ratingsystem.enums.ApprovalStatus;
 import org.example.ratingsystem.enums.Role;
@@ -12,6 +13,7 @@ import org.example.ratingsystem.exceptions.InvalidDataException;
 import org.example.ratingsystem.exceptions.InvalidTokenException;
 import org.example.ratingsystem.exceptions.LoginFailedException;
 import org.example.ratingsystem.exceptions.UserAlreadyExistsException;
+import org.example.ratingsystem.repositories.UserRankingRepository;
 import org.example.ratingsystem.repositories.UserRepository;
 import org.example.ratingsystem.repositories.UserStatusRepository;
 import org.example.ratingsystem.services.interfaces.AuthService;
@@ -42,6 +44,7 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final UserStatusRepository userStatusRepository;
+    private final UserRankingRepository userRankingRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
     private final ValidationService tokenValidationService;
@@ -83,6 +86,12 @@ public class AuthServiceImpl implements AuthService {
         status.setUser(user);
         status.setStatus(ApprovalStatus.PENDING);
         userStatusRepository.save(status);
+
+        UserRanking userRanking = new UserRanking();
+        userRanking.setUser(user);
+        userRanking.setPositiveCommentCount(0);
+        userRanking.setCommentCount(0);
+        userRankingRepository.save(userRanking);
 
         String token = UUID.randomUUID().toString();
         String verificationLink = String.format("http://%s:%d/auth/verify?token=%s", address, port, token);

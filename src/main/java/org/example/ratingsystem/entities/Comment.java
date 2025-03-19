@@ -24,6 +24,9 @@ public class Comment {
     @Column(name = "message", nullable = false)
     private String message;
 
+    @Column(name = "is_positive", nullable = false)
+    private boolean isPositive;
+
     @ManyToOne
     @JoinColumn(name = "seller_id", referencedColumnName = "id", nullable = false)
     @ToString.Exclude

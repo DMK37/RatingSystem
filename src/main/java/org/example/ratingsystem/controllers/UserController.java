@@ -5,6 +5,7 @@ import org.example.ratingsystem.config.auth.TokenProvider;
 import org.example.ratingsystem.dtos.comment.CommentDTO;
 import org.example.ratingsystem.dtos.comment.CommentRequestDTO;
 import org.example.ratingsystem.dtos.comment.CommentResponseDTO;
+import org.example.ratingsystem.dtos.user.UserDTO;
 import org.example.ratingsystem.services.interfaces.CommentService;
 import org.example.ratingsystem.services.interfaces.UserService;
 import org.springframework.http.ResponseEntity;
@@ -61,5 +62,10 @@ public class UserController {
                                                     @RequestHeader(name = "Authorization") String token) {
         String userId = extractUserId(token);
         return ResponseEntity.ok(commentService.updateComment(commentId, commentRequestDTO, userId));
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserDTO> getUserById(@PathVariable String userId) {
+        return ResponseEntity.ok(userService.getUserById(userId));
     }
 }
